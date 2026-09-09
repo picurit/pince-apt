@@ -1,0 +1,40 @@
+#!/bin/sh
+# Sincroniza el repositorio apt (repo/) con los releases de PINCE en GitHub:
+# empaqueta los tags recientes que falten y poda los antiguos.
+# No genera metadatos; eso lo decide update-repo.sh al comparar el contenido.
+# Herramienta de CI/desarrollo: NO se instala en los clientes.
+set -eu
+
+here="$(cd "$(dirname "$0")" && pwd)"
+REPO="${PINCE_APT_REPO:-$(cd "$here/.." && pwd)/repo}"
+KEEP="${PINCE_APT_KEEP:-3}"
+API="https://api.github.com/repos/korcankaraokcu/PINCE/releases"
+
+[ -d "$REPO" ] || { echo "refresh-repo: no existe $REPO" >&2; exit 1; }
+
+fetch_api() {
+    # GITHUB_TOKEN evita el rate-limit anonimo en los runners de Actions
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        timeout 20 curl -sfL -H "Authorization: Bearer $GITHUB_TOKEN" "$1"
+    else
+        timeout 20 curl -sfL "$1"
+    fi
+}
+
+list="$(fetch_api "$API?per_page=$KEEP" | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
+[ -n "$list" ] || { echo "refresh-repo: sin acceso a la API de GitHub" >&2; exit 1; }
+
+for tag in $list; do
+    ver="${tag#v}"
+    [ -e "$REPO/pince_${ver}_amd64.deb" ] || "$here/build-pince-deb" "$tag"
+done
+
+# poda: conserva solo los KEEP debs de pince mas recientes
+n=0
+for deb in $(ls -1 "$REPO"/pince_*_amd64.deb 2>/dev/null | sort -rV); do
+    n=$((n + 1))
+    if [ "$n" -gt "$KEEP" ]; then
+        rm -f "$deb"
+        echo "refresh-repo: podado $(basename "$deb")"
+    fi
+done

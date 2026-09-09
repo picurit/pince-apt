@@ -1,10 +1,10 @@
 #!/bin/sh
 # Regenera los metadatos (Packages, Packages.gz, Release) del repositorio
-# apt local plano. Solo usa dpkg-deb y coreutils: sin dependencias extra.
+# apt plano en repo/. Solo usa dpkg-deb y coreutils: sin dependencias extra.
 set -eu
 
-STATE="${PINCE_APT_STATE:-/var/lib/pince-apt}"
-REPO="$STATE/repo"
+here="$(cd "$(dirname "$0")" && pwd)"
+REPO="${PINCE_APT_REPO:-$(cd "$here/.." && pwd)/repo}"
 cd "$REPO"
 
 : > Packages
@@ -32,3 +32,4 @@ gzip -9kf Packages
             "$(sha256sum "$f" | cut -d' ' -f1)" "$(stat -c %s "$f")" "$f"
     done
 } > Release
+echo "gen-packages: metadatos regenerados ($(ls -1 ./*.deb | wc -l) debs)."

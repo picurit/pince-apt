@@ -1,14 +1,15 @@
 Package: pince-apt
-Version: 1.0.0
+Version: 2.0.0
 Architecture: all
 Maintainer: Yeifer <developer@yeifer.co>
-Depends: curl, ca-certificates
+Depends: ca-certificates
 Section: admin
 Priority: optional
-Homepage: https://github.com/korcankaraokcu/PINCE
-Description: Capa de compatibilidad apt para PINCE (AppImage)
- Mantiene un repositorio apt local en /var/lib/pince-apt/repo con paquetes
- 'pince' generados a partir de los releases oficiales de GitHub, y un hook
- APT::Update::Pre-Invoke que lo refresca en cada 'apt update'. Permite
- instalar, actualizar, listar versiones, fijar y purgar PINCE usando
- exclusivamente las operaciones estandar de apt.
+Homepage: https://github.com/picurit/pince-apt
+Description: Repositorio apt de PINCE (AppImage) servido desde GitHub
+ Da de alta en apt el repositorio remoto
+ https://raw.githubusercontent.com/picurit/pince-apt/main/repo, mantenido
+ automaticamente por GitHub Actions a partir de los releases oficiales de
+ PINCE (https://github.com/korcankaraokcu/PINCE). El paquete 'pince'
+ instalado desde ese origen descarga el AppImage oficial del release y lo
+ verifica con el SHA-1 publicado en su .zsync.

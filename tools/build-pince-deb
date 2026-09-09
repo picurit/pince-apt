@@ -1,14 +1,14 @@
 #!/bin/sh
 # Construye el paquete pince_<ver>_amd64.deb para un tag de release de GitHub
-# y lo deposita en el repositorio local. El .deb es minusculo: el AppImage
-# lo descarga y verifica su postinst en el momento de la instalacion.
+# y lo deposita en repo/. El .deb es minusculo: el AppImage lo descarga y
+# verifica su postinst en el momento de la instalacion.
 set -eu
 
 tag="${1:?uso: build-pince-deb <tag>}"
 ver="${tag#v}"
-STATE="${PINCE_APT_STATE:-/var/lib/pince-apt}"
-REPO="$STATE/repo"
-TEMPLATE="${PINCE_APT_TEMPLATE:-/usr/share/pince-apt/template}"
+here="$(cd "$(dirname "$0")" && pwd)"
+REPO="${PINCE_APT_REPO:-$(cd "$here/.." && pwd)/repo}"
+TEMPLATE="${PINCE_APT_TEMPLATE:-$(cd "$here/.." && pwd)/package-template}"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
@@ -23,4 +23,4 @@ chmod 644 "$work/DEBIAN/control" "$work/usr/share/pince/release-tag" \
           "$work/usr/share/applications/pince.desktop"
 
 dpkg-deb --root-owner-group -b "$work" "$REPO/pince_${ver}_amd64.deb" >/dev/null
-echo "pince-apt: pince $ver empaquetado en el repositorio local."
+echo "build-pince-deb: pince $ver empaquetado."

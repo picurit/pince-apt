@@ -1,7 +1,7 @@
-# Repositorio apt local (plano) mantenido por el paquete pince-apt.
-# Los .deb los genera /usr/lib/pince-apt/build-pince-deb a partir de los
-# releases oficiales de https://github.com/korcankaraokcu/PINCE
+# Repositorio apt de PINCE servido desde GitHub.
+# Mantenido automaticamente por GitHub Actions a partir de los releases
+# oficiales: https://github.com/picurit/pince-apt
 Types: deb
-URIs: file:///var/lib/pince-apt/repo
+URIs: https://raw.githubusercontent.com/picurit/pince-apt/main/repo
 Suites: ./
 Trusted: yes

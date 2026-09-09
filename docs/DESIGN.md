@@ -42,14 +42,30 @@ nativa, no mapeada:
 - notificación de updates → `apt list --upgradable`, motd de update-notifier, etc.,
   gratis, porque el repo local es un origen apt más.
 
+**v3 (actual): el repositorio apt vive en GitHub y lo mantiene Actions.**
+Al publicarse el repo como `picurit/pince-apt`, el repositorio apt local de la
+v2 se volvió innecesario: `repo/` se versiona en git y se sirve por
+`raw.githubusercontent.com` (HTTPS, CDN con caché ~5 min), con lo que cualquier
+dispositivo lo consume como un origen apt normal. Consecuencias:
+
+- El hook cliente `APT::Update::Pre-Invoke` y los scripts instalados en
+  `/usr/lib/pince-apt` desaparecen: la sincronización con los releases de
+  PINCE ocurre una sola vez, en GitHub Actions (cron cada 6 h + push +
+  manual), no en cada máquina. Los scripts pasaron a `tools/` como
+  herramientas de CI/desarrollo.
+- El paquete `pince-apt` (v2.0.0) queda reducido a un conffile: el `.sources`
+  deb822 que da de alta el origen remoto. Sin postinst, sin estado en
+  `/var/lib`. También puede prescindirse de él creando el `.sources` a mano.
+- **Idempotencia del CI**: dpkg-deb no es reproducible byte a byte, así que
+  `update-repo.sh` solo empaqueta versiones que faltan y solo regenera
+  metadatos si el conjunto de .deb cambió. Los bytes publicados nunca se
+  reescriben (los hashes que apt ya conoce siguen siendo válidos) y el cron
+  no genera commits vacíos.
+- El workflow valida el repo con `validation/validate.sh` (apt aislado,
+  transporte HTTP real) antes de publicar cambios.
+
 ## Decisiones técnicas
 
-- **Hook en `APT::Update::Pre-Invoke`** (no Post-Invoke): corre antes de que apt
-  lea las listas, así el deb del nuevo release ya está en el repo local cuando
-  apt lo indexa y la actualización aparece en ese mismo `apt update`. En la v1
-  el chequeo era Post porque no había repo que indexar. Guardas: `timeout 20` en
-  la llamada a la API, salida silenciosa si el repo no existe, y `|| true` en la
-  línea del hook.
 - **El .deb de `pince` no embebe el AppImage** (~2 KB vs 210–390 MB): el
   postinst lo descarga del tag exacto y verifica el SHA-1 publicado en el
   `.zsync` de ese release. Idempotente: si el AppImage local ya coincide con el
@@ -58,8 +74,9 @@ nativa, no mapeada:
 - **Repo plano con metadatos generados a mano** (`gen-packages`): solo dpkg-deb
   y coreutils, sin depender de `dpkg-dev`/`apt-utils`. Genera `Packages`,
   `Packages.gz` y un `Release` con SHA256; el origen se declara
-  `Trusted: yes` en un `.sources` deb822, el mecanismo estándar para repos
-  locales file:// sin firma GPG.
+  `Trusted: yes` en un `.sources` deb822 sobre HTTPS. apt sigue verificando
+  los hashes SHA256 de las listas y de cada .deb; lo que falta es la firma
+  GPG del `Release` (mejora descrita abajo).
 - **`/opt/pince` propiedad del paquete, binarios en `/usr/bin`**: al ser ya un
   paquete de verdad, el lanzador va en `/usr/bin` (en la v1 iba en
   `/usr/local/bin`, correcto solo para instalaciones no empaquetadas). El
@@ -71,6 +88,16 @@ nativa, no mapeada:
   update info por si alguien quiere usar la herramienta de forma independiente.
 - **`--appimage-extract` / `APPIMAGE_EXTRACT_AND_RUN=1`** para operar sin FUSE
   cuando se corre como root (extracción del icono en postinst).
+
+## Mejora futura: firma GPG
+
+1. Generar una clave dedicada y guardar la privada como secret de Actions
+   (`APT_SIGNING_KEY`).
+2. En el workflow, tras `gen-packages`: `gpg --clearsign -o InRelease Release`
+   y `gpg -abs -o Release.gpg Release`.
+3. Publicar la clave pública como `repo/pince-apt-keyring.gpg`, instalarla
+   desde el bootstrap en `/usr/share/keyrings/`, y sustituir `Trusted: yes`
+   por `Signed-By: /usr/share/keyrings/pince-apt-keyring.gpg` en el `.sources`.
 
 ## Límites conocidos
 
