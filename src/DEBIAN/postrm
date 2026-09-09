@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+case "$1" in
+    purge)
+        # semantica estandar de dpkg: los datos variables solo se borran en purge
+        rm -rf /var/lib/pince-apt
+        ;;
+esac
+exit 0

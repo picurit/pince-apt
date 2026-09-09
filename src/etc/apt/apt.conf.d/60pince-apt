@@ -1,0 +1,6 @@
+// pince-apt: refresca el repositorio local de PINCE ANTES de que apt lea las
+// listas (Pre-Invoke), de modo que un nuevo release de GitHub aparezca como
+// actualizacion disponible en este mismo 'apt update'.
+// El '|| true' garantiza que el hook jamas rompa apt (sin red, paquete
+// eliminado pero conffile presente, etc.).
+APT::Update::Pre-Invoke { "/usr/lib/pince-apt/refresh-repo || true"; };

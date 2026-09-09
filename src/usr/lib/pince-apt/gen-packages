@@ -1,0 +1,34 @@
+#!/bin/sh
+# Regenera los metadatos (Packages, Packages.gz, Release) del repositorio
+# apt local plano. Solo usa dpkg-deb y coreutils: sin dependencias extra.
+set -eu
+
+STATE="${PINCE_APT_STATE:-/var/lib/pince-apt}"
+REPO="$STATE/repo"
+cd "$REPO"
+
+: > Packages
+for deb in $(ls -1 ./*.deb 2>/dev/null | sort -V); do
+    deb="${deb#./}"
+    dpkg-deb -f "$deb" >> Packages
+    {
+        echo "Filename: ./$deb"
+        echo "Size: $(stat -c %s "$deb")"
+        echo "MD5sum: $(md5sum "$deb" | cut -d' ' -f1)"
+        echo "SHA1: $(sha1sum "$deb" | cut -d' ' -f1)"
+        echo "SHA256: $(sha256sum "$deb" | cut -d' ' -f1)"
+        echo
+    } >> Packages
+done
+gzip -9kf Packages
+
+{
+    echo "Origin: pince-apt"
+    echo "Label: pince-apt"
+    echo "Date: $(date -Ru)"
+    echo "SHA256:"
+    for f in Packages Packages.gz; do
+        printf ' %s %16d %s\n' \
+            "$(sha256sum "$f" | cut -d' ' -f1)" "$(stat -c %s "$f")" "$f"
+    done
+} > Release

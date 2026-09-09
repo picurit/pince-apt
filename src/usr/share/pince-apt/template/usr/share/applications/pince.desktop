@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=PINCE
+Comment=Reverse engineering tool / memory scanner (GDB frontend)
+Exec=/usr/bin/pince
+Icon=/opt/pince/PINCE.png
+Terminal=false
+Categories=Development;Debugger;

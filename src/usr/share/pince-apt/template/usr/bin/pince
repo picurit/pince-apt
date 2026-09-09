@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /opt/pince/PINCE-x86_64.AppImage "$@"

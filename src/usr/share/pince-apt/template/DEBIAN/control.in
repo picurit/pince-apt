@@ -1,0 +1,14 @@
+Package: pince
+Version: @VERSION@
+Architecture: amd64
+Maintainer: Yeifer <developer@yeifer.co>
+Depends: pince-apt, curl, ca-certificates
+Section: devel
+Priority: optional
+Homepage: https://github.com/korcankaraokcu/PINCE
+Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
+ Herramienta de ingenieria inversa y escaneo de memoria estilo Cheat Engine.
+ Paquete generado localmente por pince-apt a partir del release oficial de
+ GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
+ contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
+ no reflejados en Installed-Size).

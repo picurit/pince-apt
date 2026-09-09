@@ -1,0 +1,48 @@
+#!/bin/sh
+# Refresca el repositorio apt local de PINCE.
+# Invocado por el hook APT::Update::Pre-Invoke y por el postinst (--bootstrap).
+# Variables de entorno (para validacion en sandbox):
+#   PINCE_APT_STATE (def. /var/lib/pince-apt), PINCE_APT_LIB, PINCE_APT_KEEP
+set -u
+
+STATE="${PINCE_APT_STATE:-/var/lib/pince-apt}"
+REPO="$STATE/repo"
+LIB="${PINCE_APT_LIB:-/usr/lib/pince-apt}"
+KEEP="${PINCE_APT_KEEP:-3}"
+API="https://api.github.com/repos/korcankaraokcu/PINCE/releases"
+
+# Si el repo no existe (paquete purgado o aun no configurado), no hacer nada
+[ -d "$REPO" ] || exit 0
+
+tags() { # $1 = cuantos tags recientes pedir
+    timeout 20 curl -sfL "$API?per_page=$1" \
+        | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4
+}
+
+if [ "${1:-}" = "--bootstrap" ]; then
+    list="$(tags "$KEEP")" || exit 0
+else
+    list="$(tags 1)" || exit 0
+fi
+[ -n "$list" ] || exit 0
+
+changed=0
+for tag in $list; do
+    ver="${tag#v}"
+    if [ ! -e "$REPO/pince_${ver}_amd64.deb" ]; then
+        "$LIB/build-pince-deb" "$tag" && changed=1
+    fi
+done
+
+# poda: conserva solo los KEEP debs de pince mas recientes
+n=0
+for deb in $(ls -1 "$REPO"/pince_*_amd64.deb 2>/dev/null | sort -rV); do
+    n=$((n + 1))
+    if [ "$n" -gt "$KEEP" ]; then
+        rm -f "$deb"
+        changed=1
+    fi
+done
+
+[ "$changed" -eq 1 ] && "$LIB/gen-packages"
+exit 0

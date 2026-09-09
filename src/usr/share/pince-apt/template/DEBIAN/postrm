@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+case "$1" in
+    remove|purge)
+        # el AppImage y el icono no son ficheros "propiedad" de dpkg
+        # (los descarga/extrae el postinst), asi que se limpian aqui
+        rm -f /opt/pince/PINCE-x86_64.AppImage \
+              /opt/pince/PINCE-x86_64.AppImage.part \
+              /opt/pince/PINCE.png
+        rmdir /opt/pince 2>/dev/null || true
+        ;;
+esac
+exit 0

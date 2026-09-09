@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+case "$1" in
+    configure)
+        install -d -m 755 /var/lib/pince-apt/repo
+        echo "pince-apt: poblando el repositorio local con los ultimos releases de PINCE..."
+        /usr/lib/pince-apt/refresh-repo --bootstrap \
+            || echo "pince-apt: sin red; el repo se poblara en el proximo 'apt update'." >&2
+        # genera metadatos aunque el repo este vacio, para que 'apt update' nunca falle
+        /usr/lib/pince-apt/gen-packages || true
+        ;;
+esac
+exit 0

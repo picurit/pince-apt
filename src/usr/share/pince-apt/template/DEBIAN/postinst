@@ -1,0 +1,43 @@
+#!/bin/sh
+set -e
+case "$1" in
+    configure)
+        tag="$(cat /usr/share/pince/release-tag)"
+        base="https://github.com/korcankaraokcu/PINCE/releases/download/$tag"
+        appimage=/opt/pince/PINCE-x86_64.AppImage
+
+        # SHA-1 oficial publicado en el .zsync del release
+        sha="$(curl -sfL "$base/PINCE-x86_64.AppImage.zsync" | head -c 4096 \
+               | grep -a '^SHA-1: ' | head -1 | cut -d' ' -f2 || true)"
+
+        if [ -n "$sha" ] && [ -f "$appimage" ] \
+           && [ "$(sha1sum "$appimage" | cut -d' ' -f1)" = "$sha" ]; then
+            echo "pince: AppImage $tag ya presente y verificado; no se descarga."
+        else
+            echo "pince: descargando AppImage $tag desde GitHub (200-400 MB)..."
+            tmp="$appimage.part"
+            curl -fL --progress-bar -o "$tmp" "$base/PINCE-x86_64.AppImage"
+            if [ -n "$sha" ]; then
+                actual="$(sha1sum "$tmp" | cut -d' ' -f1)"
+                if [ "$actual" != "$sha" ]; then
+                    echo "pince: verificacion SHA-1 fallida ($actual != $sha)" >&2
+                    rm -f "$tmp"
+                    exit 1
+                fi
+                echo "pince: SHA-1 verificado contra el .zsync del release."
+            fi
+            chmod 755 "$tmp"
+            mv -f "$tmp" "$appimage"
+        fi
+
+        # icono para la entrada de menu (extraccion sin FUSE)
+        if [ ! -f /opt/pince/PINCE.png ]; then
+            tmpd="$(mktemp -d)"
+            ( cd "$tmpd" && "$appimage" --appimage-extract PINCE.png >/dev/null 2>&1 ) || true
+            [ -f "$tmpd/squashfs-root/PINCE.png" ] \
+                && install -m 644 "$tmpd/squashfs-root/PINCE.png" /opt/pince/PINCE.png
+            rm -rf "$tmpd"
+        fi
+        ;;
+esac
+exit 0
