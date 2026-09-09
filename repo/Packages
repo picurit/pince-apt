@@ -20,7 +20,7 @@ SHA1: 95a77aade2531c815df114bbef6b2a3253fd6b3f
 SHA256: dc48e901ecadd0176aa6c496038fc35a5a2a37a24dff26753c7beec1acd43a7d
 
 Package: pince
-Version: 0.9.3
+Version: 0.9.3+pa2
 Architecture: amd64
 Maintainer: Yeifer <developer@yeifer.co>
 Depends: pince-apt, curl, ca-certificates
@@ -33,14 +33,14 @@ Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
  GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
  contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
  no reflejados en Installed-Size).
-Filename: ./pince_0.9.3_amd64.deb
-Size: 1954
-MD5sum: 10cf15bdcb733a206c78f8f45935240d
-SHA1: e3b5f10ee1d5a9e00023ff41a1757dffb7ff5a9e
-SHA256: 7826aec10ce027459d3634a39862cdff5439660bea10365a8fe77ecc5c6f7409
+Filename: ./pince_0.9.3+pa2_amd64.deb
+Size: 2050
+MD5sum: a3997b912b74ff81d453ca7f683d411e
+SHA1: 31acb563ec081f386dee1f61201f0c2f6cc53947
+SHA256: 3e085723f7062b12e450f8bc31147627664e60de0749ed2fd904e21ba370264c
 
 Package: pince
-Version: 0.10.1
+Version: 0.10+pa2
 Architecture: amd64
 Maintainer: Yeifer <developer@yeifer.co>
 Depends: pince-apt, curl, ca-certificates
@@ -53,14 +53,14 @@ Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
  GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
  contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
  no reflejados en Installed-Size).
-Filename: ./pince_0.10.1_amd64.deb
-Size: 1952
-MD5sum: d54b0af6e4319d7e12194647575c2dee
-SHA1: 62d666a8ccffb87a2faec419fee5e4576eddf7d1
-SHA256: 015a2daa80a4c1a6daa911fc6ff16b907a62b8194757cdb59b086df105ddf315
+Filename: ./pince_0.10+pa2_amd64.deb
+Size: 2044
+MD5sum: 9debf9fd8eb4d0a11167d1b88401fe0f
+SHA1: 85500f3bf2c7003577d0138baaafc68d7ffb1bb8
+SHA256: 1d2455cf7213e12f7a7fa0d3ae99cf2cdbf1ff5fefccebd184af9c8a614bc984
 
 Package: pince
-Version: 0.10
+Version: 0.10.1+pa2
 Architecture: amd64
 Maintainer: Yeifer <developer@yeifer.co>
 Depends: pince-apt, curl, ca-certificates
@@ -73,9 +73,9 @@ Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
  GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
  contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
  no reflejados en Installed-Size).
-Filename: ./pince_0.10_amd64.deb
-Size: 1950
-MD5sum: be24c521c5dc34fb4694cd7c5bb48b3f
-SHA1: b1f1eba438ebda1f20091adef2e29c2c000f415d
-SHA256: 67fd9c35a8fe97fea337ae4d7c3c9e207ad06cd9926942722eaa73810cef3674
+Filename: ./pince_0.10.1+pa2_amd64.deb
+Size: 2044
+MD5sum: 6e93eeec27b0f61d469b7e5c702ae71a
+SHA1: 7ab2768aa44c8908925a4cfc92042140da420f45
+SHA256: 0bbdb3107e51580b60c8153d39ea5513ee8cc27e9658a678787f1e77a007e417
 

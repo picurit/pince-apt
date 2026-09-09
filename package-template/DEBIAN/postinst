@@ -30,12 +30,14 @@ case "$1" in
             mv -f "$tmp" "$appimage"
         fi
 
-        # icono para la entrada de menu (extraccion sin FUSE)
+        # icono para la entrada de menu (extraccion sin FUSE);
+        # el PINCE.png raiz del AppImage es un symlink, hay que extraer el destino
         if [ ! -f /opt/pince/PINCE.png ]; then
             tmpd="$(mktemp -d)"
-            ( cd "$tmpd" && "$appimage" --appimage-extract PINCE.png >/dev/null 2>&1 ) || true
-            [ -f "$tmpd/squashfs-root/PINCE.png" ] \
-                && install -m 644 "$tmpd/squashfs-root/PINCE.png" /opt/pince/PINCE.png
+            ( cd "$tmpd" && "$appimage" --appimage-extract \
+                'usr/share/icons/hicolor/512x512/apps/PINCE.png' >/dev/null 2>&1 ) || true
+            icon="$(find "$tmpd/squashfs-root" -name 'PINCE.png' -type f 2>/dev/null | head -1)"
+            [ -n "$icon" ] && install -m 644 "$icon" /opt/pince/PINCE.png
             rm -rf "$tmpd"
         fi
         ;;

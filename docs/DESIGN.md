@@ -89,6 +89,18 @@ dispositivo lo consume como un origen apt normal. Consecuencias:
 - **`--appimage-extract` / `APPIMAGE_EXTRACT_AND_RUN=1`** para operar sin FUSE
   cuando se corre como root (extracción del icono en postinst).
 
+- **Revisiones de plantilla (`+pa<N>`)**: los .deb publicados son inmutables
+  (idempotencia del CI), así que un arreglo en la plantilla del paquete
+  (`package-template/`) no puede reescribirlos. En su lugar se incrementa
+  `package-template/REVISION` y todos los tags se re-empaquetan como
+  `<version>+pa<N>` — para dpkg `0.10.1+pa2 > 0.10.1`, con lo que el arreglo
+  llega a los clientes como un upgrade normal de apt. La poda del repo elimina
+  las revisiones superadas comparando por versión extraída, no por nombre de
+  archivo (`_amd64` vs `+pa` invierte el orden en `sort -V`). Origen del
+  esquema: la instalación real detectó que el icono raíz del AppImage es un
+  symlink y el postinst extraía el enlace roto (corregido en pa2 extrayendo
+  `usr/share/icons/hicolor/512x512/apps/PINCE.png`).
+
 ## Mejora futura: firma GPG
 
 1. Generar una clave dedicada y guardar la privada como secret de Actions

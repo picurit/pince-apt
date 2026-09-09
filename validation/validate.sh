@@ -43,7 +43,13 @@ mkdir -p "$R/etc/apt/sources.list.d" "$R/etc/apt/apt.conf.d" "$R/etc/apt/prefere
          "$R/var/lib/apt/lists/partial" "$R/var/cache/apt/archives/partial" \
          "$R/var/lib/dpkg" "$R/var/log/apt"
 : > "$R/etc/apt/sources.list"
-cp /var/lib/dpkg/status "$R/var/lib/dpkg/status"   # curl/ca-certificates resuelven
+# status dpkg del host (para que curl/ca-certificates resuelvan) pero SIN
+# pince/pince-apt: la validacion parte siempre de un sistema "limpio",
+# aunque en la maquina real ya esten instalados
+base_status() {
+    awk 'BEGIN{RS="";ORS="\n\n"} $0 !~ /^Package: (pince|pince-apt)\n/' /var/lib/dpkg/status
+}
+base_status > "$R/var/lib/dpkg/status"
 cat > "$R/etc/apt/sources.list.d/pince.sources" <<EOF
 Types: deb
 URIs: $BASE_URI
@@ -83,7 +89,7 @@ grep -q "^Inst pince ($newest" "$SB/inst.txt" || fail "no instala la version can
 
 echo
 echo "== simulacion: apt install pince=$older (version especifica) =="
-apt-get install --simulate "pince=$older" | grep -E "^Inst pince \($older" \
+apt-get install --simulate "pince=$older" | grep -F "Inst pince ($older" \
     || fail "no instala la version especifica"
 
 echo
@@ -94,7 +100,7 @@ dpkg-deb --info "$deb" | grep -E '^ (Package|Version):'
 
 # ------------------- estado simulado: pince (version antigua) ya instalado --
 fake_status() { # $1: incluir pince (yes/no)
-    cp /var/lib/dpkg/status "$R/var/lib/dpkg/status"
+    base_status > "$R/var/lib/dpkg/status"
     if [ "$1" = yes ]; then
         cat >> "$R/var/lib/dpkg/status" <<EOF
 
@@ -131,7 +137,7 @@ grep -q "^pince/" "$SB/upg.txt" || fail "pince no aparece como actualizable"
 
 echo
 echo "== simulacion: apt upgrade =="
-apt-get upgrade --simulate | grep -E "^Inst pince \[$older\] \($newest" \
+apt-get upgrade --simulate | grep -F "Inst pince [$older] ($newest" \
     || fail "upgrade no propone $older -> $newest"
 echo "upgrade propone pince $older -> $newest: OK"
 

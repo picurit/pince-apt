@@ -24,17 +24,31 @@ fetch_api() {
 list="$(fetch_api "$API?per_page=$KEEP" | grep -o '"tag_name": *"[^"]*"' | cut -d'"' -f4)"
 [ -n "$list" ] || { echo "refresh-repo: sin acceso a la API de GitHub" >&2; exit 1; }
 
+rev="$(cat "${PINCE_APT_TEMPLATE:-$(cd "$here/.." && pwd)/package-template}/REVISION")"
 for tag in $list; do
-    ver="${tag#v}"
+    ver="${tag#v}+pa${rev}"
     [ -e "$REPO/pince_${ver}_amd64.deb" ] || "$here/build-pince-deb" "$tag"
 done
 
-# poda: conserva solo los KEEP debs de pince mas recientes
+# poda: elimina revisiones superadas de una misma version upstream y
+# conserva solo los KEEP debs de pince mas recientes. Se ordena por la
+# VERSION extraida (no por nombre de archivo: '_amd64' vs '+pa' rompe sort -V)
 n=0
-for deb in $(ls -1 "$REPO"/pince_*_amd64.deb 2>/dev/null | sort -rV); do
+seen=" "
+for v in $(ls -1 "$REPO" | sed -n 's/^pince_\(.*\)_amd64\.deb$/\1/p' | sort -rV); do
+    deb="$REPO/pince_${v}_amd64.deb"
+    up="${v%%+pa*}"
+    case "$seen" in
+        *" $up "*)
+            rm -f "$deb"
+            echo "refresh-repo: podado pince_${v}_amd64.deb (revision superada)"
+            continue
+            ;;
+    esac
+    seen="$seen$up "
     n=$((n + 1))
     if [ "$n" -gt "$KEEP" ]; then
         rm -f "$deb"
-        echo "refresh-repo: podado $(basename "$deb")"
+        echo "refresh-repo: podado pince_${v}_amd64.deb"
     fi
 done

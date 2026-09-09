@@ -5,17 +5,21 @@
 set -eu
 
 tag="${1:?uso: build-pince-deb <tag>}"
-ver="${tag#v}"
 here="$(cd "$(dirname "$0")" && pwd)"
 REPO="${PINCE_APT_REPO:-$(cd "$here/.." && pwd)/repo}"
 TEMPLATE="${PINCE_APT_TEMPLATE:-$(cd "$here/.." && pwd)/package-template}"
+
+# revision de la plantilla: los .deb publicados son inmutables, asi que un
+# arreglo en la plantilla se publica como nueva version debian <tag>+pa<rev>
+rev="$(cat "$TEMPLATE/REVISION")"
+ver="${tag#v}+pa${rev}"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
 cp -a "$TEMPLATE"/. "$work/"
 sed "s/@VERSION@/$ver/" "$work/DEBIAN/control.in" > "$work/DEBIAN/control"
-rm -f "$work/DEBIAN/control.in"
+rm -f "$work/DEBIAN/control.in" "$work/REVISION"
 install -d -m 755 "$work/opt/pince" "$work/usr/share/pince"
 printf '%s\n' "$tag" > "$work/usr/share/pince/release-tag"
 chmod 755 "$work/DEBIAN/postinst" "$work/DEBIAN/postrm" "$work/usr/bin/pince"
