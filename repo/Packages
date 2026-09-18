@@ -20,26 +20,6 @@ SHA1: 95a77aade2531c815df114bbef6b2a3253fd6b3f
 SHA256: dc48e901ecadd0176aa6c496038fc35a5a2a37a24dff26753c7beec1acd43a7d
 
 Package: pince
-Version: 0.9.3+pa2
-Architecture: amd64
-Maintainer: Yeifer <developer@yeifer.co>
-Depends: pince-apt, curl, ca-certificates
-Section: devel
-Priority: optional
-Homepage: https://github.com/korcankaraokcu/PINCE
-Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
- Herramienta de ingenieria inversa y escaneo de memoria estilo Cheat Engine.
- Paquete generado localmente por pince-apt a partir del release oficial de
- GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
- contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
- no reflejados en Installed-Size).
-Filename: ./pince_0.9.3+pa2_amd64.deb
-Size: 2050
-MD5sum: a3997b912b74ff81d453ca7f683d411e
-SHA1: 31acb563ec081f386dee1f61201f0c2f6cc53947
-SHA256: 3e085723f7062b12e450f8bc31147627664e60de0749ed2fd904e21ba370264c
-
-Package: pince
 Version: 0.10+pa2
 Architecture: amd64
 Maintainer: Yeifer <developer@yeifer.co>
@@ -78,4 +58,24 @@ Size: 2044
 MD5sum: 6e93eeec27b0f61d469b7e5c702ae71a
 SHA1: 7ab2768aa44c8908925a4cfc92042140da420f45
 SHA256: 0bbdb3107e51580b60c8153d39ea5513ee8cc27e9658a678787f1e77a007e417
+
+Package: pince
+Version: 0.10.2+pa2
+Architecture: amd64
+Maintainer: Yeifer <developer@yeifer.co>
+Depends: pince-apt, curl, ca-certificates
+Section: devel
+Priority: optional
+Homepage: https://github.com/korcankaraokcu/PINCE
+Description: PINCE - frontend de GDB para ingenieria inversa (AppImage)
+ Herramienta de ingenieria inversa y escaneo de memoria estilo Cheat Engine.
+ Paquete generado localmente por pince-apt a partir del release oficial de
+ GitHub: en la instalacion descarga el AppImage oficial, verifica su SHA-1
+ contra el .zsync publicado y lo instala en /opt/pince (200-400 MB extra
+ no reflejados en Installed-Size).
+Filename: ./pince_0.10.2+pa2_amd64.deb
+Size: 2028
+MD5sum: 840d0bb20e99f6dbb123dd0a944bf2e8
+SHA1: f14367490f5664a1a95b34254fcf35f1cef88ada
+SHA256: 0ce22cb7801e5ba8b6b4441318c28e120d2339e7baf1e5029bfc87d3e97950a9
 
